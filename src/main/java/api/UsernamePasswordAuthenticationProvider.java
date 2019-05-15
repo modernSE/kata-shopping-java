@@ -12,6 +12,6 @@ public class UsernamePasswordAuthenticationProvider {
     }
 
     public UserConnection authenticate() {
-        return new UserConnection();
+        throw new IllegalArgumentException("Invalid credentials!");
     }
 }

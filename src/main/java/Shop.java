@@ -1,14 +1,11 @@
 import api.BankeinzugService;
 import api.BuyBuddy;
-import api.DPDItem;
-import api.DPDItemCreator;
 import api.ItemInformationProvider;
 import api.JBANConnection;
 import api.JBANConnectionException;
 import api.JBANValidationException;
 import api.UserConnection;
 import api.UsernamePasswordAuthenticationProvider;
-import api.WishListStorage;
 
 public class Shop {
 
@@ -26,14 +23,10 @@ public class Shop {
 
     private UserConnection userConnection;
 
-    public void addToCartOrWishlist(String item, int quantity, String listName) {
-        if (listName == null) {
-            shoppingCart.add(item, quantity);
-            System.out.println("Added " + quantity + " of " + item + " to cart.");
-        } else {
-            WishListStorage wishListStorage = new WishListStorage(userConnection);
-            System.out.println("Added " + quantity + " of " + item + " to wishlist " + listName + ".");
-        }
+
+    public void addToCart(String item, int quantity) {
+        shoppingCart.add(item, quantity);
+        System.out.println("Added " + quantity + " of " + item + " to cart.");
     }
 
     public void authenticate(String username, String passwordHash) {
@@ -82,17 +75,5 @@ public class Shop {
         bankeinzugService.legitimiereBankeinzug(amount, token); return "JBAN Payment successful";
     }
 
-    public void ship() {
-        String addressToShipTo = null;
-        if (this.address != null) {
-            addressToShipTo = this.address;
-        } else {
-            addressToShipTo = userConnection.getShippingAddress();
-        }
-        DPDItem dpdItem = DPDItemCreator.create(addressToShipTo);
-        dpdItem.dispatch();
-
-        System.out.println("Shipping to " + addressToShipTo + " with DPD.");
-    }
 
 }
