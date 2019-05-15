@@ -6,7 +6,7 @@ public class TestShop {
 
     @Test
     public void testShopWithBuyBuddy() {
-        Shop shop = new Shop();
+        Shop shop = new Shop(new BogusItemInformationProvider(), new BogusAuthenticationProvider());
         shop.authenticate("Robert Glaser", "hash");
         shop.addToCart("D&D Player's Handbook", 1);
         try {
@@ -18,7 +18,7 @@ public class TestShop {
 
     @Test
     public void testShopViaJBAN() {
-        Shop shop = new Shop();
+        Shop shop = new Shop(new BogusItemInformationProvider(), new BogusAuthenticationProvider());
         shop.authenticate("Robert Glaser", "hash");
         shop.addToCart("D&D Dungeon Master's Guide", 1);
         try {
@@ -30,7 +30,7 @@ public class TestShop {
 
     @Test
     public void testShopViaInvoice() {
-        Shop shop = new Shop();
+        Shop shop = new Shop(new BogusItemInformationProvider(), new BogusAuthenticationProvider());
         shop.authenticate("Robert Glaser", "hash");
         shop.addToCart("D&D Dungeon Master's Guide", 1);
         try {
