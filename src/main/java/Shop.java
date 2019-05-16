@@ -1,3 +1,5 @@
+import java.util.List;
+
 import api.BankeinzugService;
 import api.BuyBuddy;
 import api.ItemInformationProvider;
@@ -7,21 +9,44 @@ import api.JBANValidationException;
 import api.UserConnection;
 import api.UsernamePasswordAuthenticationProvider;
 
+//Dependency-Inversion-Principle und Open-Closed-Prinzip verletzt:
+// new()-Konstruktor bei 
+// - bankeinzugService
+// - usernamePasswordAuthenticationProvider
+// - itemInformationProvider
+
+
+
+//1.1
+//Single-Responsibility-Prinzip
+//1.2
+//Open-Closed-Prinzip
+//1.3
+//Liskovsches Substitutionsprinzip: hier nicht relevant, da keine Vererbung
+//1.4
+//Interface-Segregation-Prinzip
+//1.5
+//Dependency-Inversion-Prinzip
+
 public class Shop {
 
     private ShoppingCart shoppingCart = new ShoppingCart();
-
-    private String itemDbUrl = "https://internal.ferdis-brettspiel-emporium.shop/priceDb";
-
-    private BankeinzugService bankeinzugService = new BankeinzugService();
-
-    private UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider;
-
-    private double amount;
-
+ 
+    private AuthenticationProvider authenticationProvider;
+    
+    private IItemInformationProvider itemInformationProvider;
+    
     private String address;
 
     private UserConnection userConnection;
+
+	private List<PaymentService> paymentServices;
+    
+    public Shop(AuthenticationProvider authenticationProvider, IItemInformationProvider itemInformationProvider, List<PaymentService> paymentServices) {
+    	this.authenticationProvider = authenticationProvider;
+    	this.itemInformationProvider = itemInformationProvider;
+    	this.paymentServices = paymentServices;
+    }
 
 
     public void addToCart(String item, int quantity) {
@@ -29,51 +54,35 @@ public class Shop {
         System.out.println("Added " + quantity + " of " + item + " to cart.");
     }
 
-    public void authenticate(String username, String passwordHash) {
-        usernamePasswordAuthenticationProvider = new UsernamePasswordAuthenticationProvider(username, passwordHash);
-        this.userConnection = usernamePasswordAuthenticationProvider.authenticate();
-
-        System.out.println("Authenticated as " + username + ".");
+    // Was passiert, wenn sich mehrere user authenticaten?
+    // Sollte nicht jeder User einen ShoppingCart erhalten? (return new ShoppingCard()?)
+    public void authenticate() {
+        this.userConnection = authenticationProvider.authenticate();
     }
 
-    public void checkout(String address, String paymentIdentifier) throws Exception {
+    public double checkout(String address, String paymentIdentifier) throws Exception {
         double price = 0;
-        final ItemInformationProvider itemInformationProvider = new ItemInformationProvider(itemDbUrl);
         for (String item : shoppingCart.getItems()) {
             price += itemInformationProvider.getPrice(item);
         }
-
-        if (paymentIdentifier.startsWith("jban:")) {
-            String jbanResult = null;
-            try {
-                JBANConnection jbanConnection = new JBANConnection(paymentIdentifier.substring(5));
-                this.amount = price;
-                jbanResult = jbanConnection.executeWithJBANToken(this::afterAcquireJBANToken);
-                System.out.println("Payed " + price + " via JBAN Bankeinzug.");
-            } catch (JBANValidationException e) {
-                jbanResult = "Error validation JBAN";
-                throw new Exception(jbanResult);
-            } catch (JBANConnectionException e) {
-                jbanResult = "Failed to execute transaction. Unknown error.";
-                throw new Exception(jbanResult);
-            }
-        } else if (paymentIdentifier.startsWith("buybuddy:")) {
-            BuyBuddy buyBuddy = new BuyBuddy(paymentIdentifier.substring(9));
-            int i = buyBuddy.executeBuyBuddyTransaction(price);
-            if (i != 200) {
-                throw new Exception("Error executing api.BuyBuddy payment.");
-            }
-            System.out.println("Payed " + price + " via BuyBuddy.");
-        } else {
-            throw new Exception("Unknown payment provider!");
-        }
+        
+        // TODO: remove :-)
+        final double finalPrice = price;
+        
+       paymentServices.stream() //
+       	.filter(paymentService -> paymentService.appliedToPaymentIdentifier(paymentIdentifier)) //
+       	.findAny() //
+       	.ifPresent(paymentService -> {
+			try {
+				paymentService.pay(paymentIdentifier, finalPrice);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
+       // TODO: exception if 
 
         this.address = address;
+        return price;
     }
-
-    private String afterAcquireJBANToken(String token) {
-        bankeinzugService.legitimiereBankeinzug(amount, token); return "JBAN Payment successful";
-    }
-
-
 }
