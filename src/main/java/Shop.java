@@ -6,6 +6,7 @@ import api.JBANConnectionException;
 import api.JBANValidationException;
 import api.UserConnection;
 import api.UsernamePasswordAuthenticationProvider;
+import api.auth.AuthProvider;
 
 public class Shop {
 
@@ -15,7 +16,7 @@ public class Shop {
 
     private BankeinzugService bankeinzugService = new BankeinzugService();
 
-    private UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider;
+    private AuthProvider authProvider;
 
     private double amount;
 
@@ -29,11 +30,8 @@ public class Shop {
         System.out.println("Added " + quantity + " of " + item + " to cart.");
     }
 
-    public void authenticate(String username, String passwordHash) {
-        usernamePasswordAuthenticationProvider = new UsernamePasswordAuthenticationProvider(username, passwordHash);
-        this.userConnection = usernamePasswordAuthenticationProvider.authenticate();
-
-        System.out.println("Authenticated as " + username + ".");
+    public void authenticate() {
+        this.userConnection = authProvider.authenticate();
     }
 
     public void checkout(String address, String paymentIdentifier) throws Exception {
@@ -73,6 +71,10 @@ public class Shop {
 
     private String afterAcquireJBANToken(String token) {
         bankeinzugService.legitimiereBankeinzug(amount, token); return "JBAN Payment successful";
+    }
+
+    public Shop(AuthProvider authProvider) {
+        this.authProvider = authProvider;
     }
 
 

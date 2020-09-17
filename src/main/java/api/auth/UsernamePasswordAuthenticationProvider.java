@@ -1,6 +1,8 @@
-package api;
+package api.auth;
 
-public class UsernamePasswordAuthenticationProvider {
+import api.UserConnection;
+
+public class UsernamePasswordAuthenticationProvider implements AuthProvider {
 
     private String username;
 
