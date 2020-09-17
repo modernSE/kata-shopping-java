@@ -10,7 +10,6 @@ import api.info.ItemInfoProvider;
 import api.payment.AlwaysOkPaymentProcessor;
 import api.payment.PaymentProcessor;
 
-import static junit.framework.TestCase.fail;
 
 public class TestShop {
 

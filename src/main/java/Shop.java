@@ -26,23 +26,17 @@ public class Shop {
     }
 
     public double checkout() throws Exception {
-        double price = 0;
-        for (String item : shoppingCart.getItems()) {
-            price += infoProvider.getPrice(item);
-        }
+        double price = shoppingCart.checkout(infoProvider);
 
         paymentProcessor.pay(price);
 
-
         return price;
     }
-
 
     public Shop(AuthProvider authProvider, ItemInfoProvider infoProvider, PaymentProcessor paymentProcessor) {
         this.authProvider = authProvider;
         this.infoProvider = infoProvider;
         this.paymentProcessor = paymentProcessor;
     }
-
 
 }
