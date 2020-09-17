@@ -1,4 +1,4 @@
-The Brettspiel-Emporium Coding Kata
+# The Brettspiel-Emporium Coding Kata
 
 Ferdi's Brettspiel Emporium is a Boardgame Shop that wants to start an online shop. To that end, the owner has
 started developing something to the best of his knowledge. He needs to use several APIs and components that he's
@@ -16,9 +16,11 @@ However, his implementation doesn't seem to easily support those things. Can you
 why don't you take a look at how the payment's implemented, too? The owner has a hunch that adding new payment services
 may prove to be a problem...
 
-TL;DR:
+# TL;DR
 * Start by getting the tests to work. What can you do about the authentication process to fix things?
 * What can you do about the ItemInformationProvider for testing purposes?
 * Prove your Concept by summarizing the price of items in a shopping cart. Working with a tolerance other than 0 is not
   allowed.
 * Continue your refactoring and see if you can also streamline the payment process.
+
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/modernSE/kata-shopping-java)
