@@ -1,8 +1,8 @@
-package api;
+package api.info;
 
 import java.util.Random;
 
-public class ItemInformationProvider {
+public class ItemInformationProvider implements ItemInfoProvider {
 
     public ItemInformationProvider(String itemDbUrl) {
     }

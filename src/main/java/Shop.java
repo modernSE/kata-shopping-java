@@ -1,12 +1,11 @@
 import api.BankeinzugService;
 import api.BuyBuddy;
-import api.ItemInformationProvider;
 import api.JBANConnection;
 import api.JBANConnectionException;
 import api.JBANValidationException;
 import api.UserConnection;
-import api.UsernamePasswordAuthenticationProvider;
 import api.auth.AuthProvider;
+import api.info.ItemInfoProvider;
 
 public class Shop {
 
@@ -16,7 +15,9 @@ public class Shop {
 
     private BankeinzugService bankeinzugService = new BankeinzugService();
 
-    private AuthProvider authProvider;
+    private final AuthProvider authProvider;
+
+    private final ItemInfoProvider infoProvider;
 
     private double amount;
 
@@ -34,13 +35,13 @@ public class Shop {
         this.userConnection = authProvider.authenticate();
     }
 
-    public void checkout(String address, String paymentIdentifier) throws Exception {
+    public double checkout(String address, String paymentIdentifier) throws Exception {
         double price = 0;
-        final ItemInformationProvider itemInformationProvider = new ItemInformationProvider(itemDbUrl);
         for (String item : shoppingCart.getItems()) {
-            price += itemInformationProvider.getPrice(item);
+            price += infoProvider.getPrice(item);
         }
 
+        /* TODO: extract oayment processing
         if (paymentIdentifier.startsWith("jban:")) {
             String jbanResult = null;
             try {
@@ -66,15 +67,18 @@ public class Shop {
             throw new Exception("Unknown payment provider!");
         }
 
-        this.address = address;
+        this.address = address; */
+
+        return price;
     }
 
     private String afterAcquireJBANToken(String token) {
         bankeinzugService.legitimiereBankeinzug(amount, token); return "JBAN Payment successful";
     }
 
-    public Shop(AuthProvider authProvider) {
+    public Shop(AuthProvider authProvider, ItemInfoProvider infoProvider) {
         this.authProvider = authProvider;
+        this.infoProvider = infoProvider;
     }
 
 
